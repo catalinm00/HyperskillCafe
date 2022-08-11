@@ -1,0 +1,1931 @@
+type: edu
+files:
+- name: src/index.html
+  visible: true
+  text: |
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Document</title>
+    </head>
+    <body>
+
+    </body>
+    </html>
+  learner_created: false
+- name: test/test.js
+  visible: false
+  text: |-
+    const path = require('path');
+    const pagePath = 'file://' + path.resolve(__dirname, '../src/index.html');
+
+    const {StageTest, correct, wrong} = require('hs-test-web');
+
+    class CafeTest extends StageTest {
+
+        page = this.getPage(pagePath)
+
+        tests = [
+            this.page.execute(() => {
+                // test #1
+                let bodyNodes = Array.from(document.body.childNodes);
+                this.innerBodyElements = bodyNodes.filter(
+                    e => e.nodeType === Node.ELEMENT_NODE);
+
+                let len = this.innerBodyElements.length;
+                const totalElements = 5; // increased to 5 with the addition of footer tag
+                const errorMsg = `There should be ${totalElements} elements in the body of the HTML document, found: ${len}`;
+                return len === totalElements ?
+                    correct() :
+                    wrong(errorMsg);
+            }),
+            this.page.execute(() => {
+                // test #2
+                const links = Array.from(document.head.querySelectorAll("link"));
+
+                // if the link amount is not equal to 2
+                let errorMsg = `There should be a link in the head of the HTML document, found: ${links.length}`;
+                if (links.length < 1) return wrong(errorMsg);
+
+                // check if href includes the substring for bootstrap link
+                const linkBootstrap = "https://cdn.jsdelivr.net/npm/bootstrap@"
+                const isBootstrapLinked = links.find(e => e.attributes
+                    .getNamedItem("href").value.includes(linkBootstrap));
+                errorMsg = `Link the bootstrap css with the HTML document in the head.`;
+                if (!isBootstrapLinked) return wrong(errorMsg);
+
+                // check if body contains the bootstrap script tag
+                const bootstrapScript = document.body.querySelector("script")
+                const bootstrapSrc = bootstrapScript && bootstrapScript.getAttribute("src");
+                errorMsg = `Link the bootstrap script with the HTML document in the body.`;
+                if (!bootstrapScript || !bootstrapSrc ||  !bootstrapSrc.includes(linkBootstrap)) return wrong(errorMsg);
+
+                return correct();
+            }),
+            this.page.execute(() => {
+                // test #3
+                // HEADER
+                // check if header exist
+                const header = document.body.querySelector("header");
+                let errorMsg = "Header tag is missing in the body of the HTML document.";
+                if (!header) return wrong(errorMsg);
+
+                // NAV
+                // check if nav exist
+                const nav = document.body.querySelector("nav");
+                errorMsg = "Nav tag is missing in the header.";
+                if (!nav) return wrong(errorMsg);
+
+                // check the classes of the nav
+                const navClass = "navbar navbar-expand-lg navbar-light bg-light".split(" ");
+                const navMissingClasses = navClass.filter(e => !nav.className.includes(e));
+                errorMsg = `Nav tag is missing the correct Bootstrap class names: '${navMissingClasses}'`;
+                if (navMissingClasses.length > 0) return wrong(errorMsg);
+
+                // DIV
+                // check if container div exist
+                const div = nav.querySelector("div");
+                errorMsg = "Nav tag is missing the inner wrapper container div tag.";
+                if (!div) return wrong(errorMsg);
+
+                // check if container div has the right class
+                const divClass = "container-fluid"
+                errorMsg = `Container nav tag is missing the right Bootstrap class: '${divClass}'`;
+                if (!div.className.includes(divClass)) return wrong(errorMsg);
+
+                // ANCHOR
+                // check if navbar brand <a> exist
+                const navBrand = div.querySelector("a");
+                errorMsg = `Anchor tag is missing for navbar brand.`;
+                if (!navBrand) return wrong(errorMsg);
+
+                // check if <a> has the right class
+                const navBrandClass = "navbar-brand";
+                errorMsg = `Anchor tag is missing the right Bootstrap class for navbar brand: '${navBrandClass}'`;
+                if (!navBrand.className.includes(navBrandClass)) return wrong(errorMsg);
+
+                //check if <a> has the right link
+                const homeLink = "#home";
+                const navBrandHref = navBrand.getAttribute("href")
+                errorMsg = `Anchor tag is missing the right href value for navbar brand. It should redirect to home.`;
+                if (!navBrandHref || !navBrandHref.includes(homeLink)) return wrong(errorMsg);
+
+                // check if <a> has the right text content
+                const pageTitle = "Hyperskill Cafe";
+                errorMsg = `Anchor tag is missing the right inner text for navbar brand: '${pageTitle}'`;
+                if (!navBrand.innerText.includes(pageTitle)) return wrong(errorMsg);
+
+                // BUTTON
+                // check if navbar toggle button exist
+                const navToggle = div.querySelector("button");
+                errorMsg = "Button tag for toggling the navbar is missing in the container div tag.";
+                if (!navToggle) return wrong(errorMsg);
+
+                // check if toggle has the right class
+                const navToggleClass = "navbar-toggler";
+                errorMsg = `Button tag for toggling the navbar is missing the right Bootstrap class: '${navToggleClass}'`;
+                if (!navToggle.className.includes(navToggleClass)) return wrong(errorMsg);
+
+                // check if the toggle has the right type attr
+                const navToggleType = navToggle.getAttribute("type");
+                const type = "button";
+                errorMsg = `Button tag for toggling the navbar is missing the right type attribute: ${navToggleType}`;
+                if (!navToggleType || !navToggleType.includes(type)) return wrong(errorMsg);
+
+                // check if the toggle has the right data-bs-toggle attr
+                const navToggleData = navToggle.getAttribute("data-bs-toggle");
+                const dataBsToggle = "collapse";
+                errorMsg = `Button tag for toggling the navbar is missing the right data-bs-toggle attribute: ${dataBsToggle}`;
+                if (!navToggleData || !navToggleData.includes(dataBsToggle)) return wrong(errorMsg);
+
+                // check if the toggle has the right data-bs-target attr
+                const navToggleDataTarget = navToggle.getAttribute("data-bs-target");
+                const dataBsTarget = "#navbarSupportedContent";
+                errorMsg = `Button tag for toggling the navbar is missing the right data-bs-target attribute: ${dataBsTarget}`;
+                if (!navToggleDataTarget || !navToggleDataTarget.includes(dataBsTarget)) return wrong(errorMsg);
+
+                // check if the toggle has the right aria-controls attr
+                const navToggleAriaControls = navToggle.getAttribute("aria-controls");
+                const ariaControls = "navbarSupportedContent";
+                errorMsg = `Button tag for toggling the navbar is missing the right aria-control attribute: ${ariaControls}`;
+                if (!navToggleAriaControls || !navToggleAriaControls.includes(ariaControls)) return wrong(errorMsg);
+
+                // check if the toggle has the right aria-expanded attr
+                const navToggleAriaExpanded = navToggle.getAttribute("aria-expanded");
+                const ariaExpanded = "false";
+                errorMsg = `Button tag for toggling the navbar is missing the right aria-expanded attribute: ${ariaExpanded}`;
+                if (!navToggleAriaExpanded || !navToggleAriaExpanded.includes(ariaExpanded)) return wrong(errorMsg);
+
+                // check if the toggle has the right aria-label attr
+                const navToggleAriaLabel = navToggle.getAttribute("aria-label");
+                const ariaLabel = "Toggle navigation";
+                errorMsg = `Button tag for toggling the navbar is missing the right aria-label attribute: ${ariaLabel}`;
+                if (!navToggleAriaLabel || !navToggleAriaLabel.includes(ariaLabel)) return wrong(errorMsg);
+
+                // check if the toggle has the right inner span icon
+                const spanIcon = navToggle.innerHTML.trim();
+                const span = "<span class=\"navbar-toggler-icon\"></span>";
+                errorMsg = `Button tag for toggling the navbar is missing the right inner span as the icon: ${span}`;
+                if (!spanIcon.includes(span)) return wrong(errorMsg);
+
+                // INNER WRAPPER DIV
+                // check if inner div exist in container div
+                const innerDiv = div.querySelector("div");
+                errorMsg = `Div tag for wrapping the list of nav links is missing in the container div tag.`
+                if (!innerDiv) return wrong(errorMsg);
+
+                // check if inner div has the right class
+                const innerDivClass = "collapse navbar-collapse".split(" ");
+                const divMissingClasses = innerDivClass.filter(e => !innerDiv.className.includes(e));
+                errorMsg = `Div tag for wrapping the list of nav links is missing the right Bootstrap classes: '${divMissingClasses}'`;
+                if (divMissingClasses.length > 0) return wrong(errorMsg);
+
+                // check if inner div has the right id
+                const innerDivId = innerDiv.getAttribute("id");
+                const id = "navbarSupportedContent";
+                errorMsg = `Div tag for wrapping the list of nav links is missing the right id: ${id}`;
+                if (!innerDivId || !innerDivId.includes(id)) return wrong(errorMsg);
+
+                // UL LIST
+                // check if ul list exist
+                const ul = innerDiv.querySelector("ul");
+                errorMsg = `Unordered list tag for wrapping the nav links is missing in the container div.`
+                if (!ul) return wrong(errorMsg);
+
+                // check if ul has the right class
+                const ulClass = "navbar-nav ms-auto mb-2 mb-lg-0".split(" ");
+                const ulMissingClasses = ulClass.filter(e => !ul.className.includes(e));
+                errorMsg = `Unordered list tag for wrapping the nav links is missing the right Bootstrap class: '${ulMissingClasses}'`;
+                if (ulMissingClasses.length > 0) return wrong(errorMsg);
+
+                // LI LIST ITEM
+                // check if 5 list item exist in ul
+                const liArr = Array.from(ul.querySelectorAll("li"));
+                errorMsg = `There should be 5 list item tags for each nav links, found: ${liArr.length}`;
+                const liTotal = 5;
+                if (liArr.length !== liTotal) return wrong(errorMsg);
+
+                // check if all li has the right class
+                const liClass = "nav-item";
+                const liArrClass = liArr.filter(e => !e.className.includes(liClass))
+                errorMsg = `All list item tags for each nav links should have the right Bootstrap class: '${liClass}'`;
+                if (liArrClass.length > 0) return wrong(errorMsg);
+
+                // HOME ANCHOR INSIDE LI
+                // check if anchor exist for home in a li
+                const aHome = liArr[0].querySelector("a");
+                errorMsg = `First list item tag is missing the anchor tag.`;
+                if (!aHome) return wrong(errorMsg);
+
+                // check if the home anchor has the right class
+                const aHomeClass = "nav-link active".split(" ");
+                const aHomeMissingClasses = aHomeClass.filter(e => !aHome.className.includes(e));
+                errorMsg = `First anchor tag for home is missing the right Bootstrap class: '${aHomeClass}'.`;
+                if (aHomeMissingClasses.length > 0) return wrong(errorMsg);
+
+                // check if the home anchor has the aria-current attr
+                const ariaCurr = "page";
+                const aHomeAria = aHome.getAttribute("aria-current");
+                errorMsg = `First anchor tag for home is missing the right aria-current attribute: ${ariaCurr}.`;
+                if (!aHomeAria || !aHomeAria.includes(ariaCurr)) return wrong(errorMsg);
+
+                // check if the home anchor has the right href attr
+                const homeHref = "#home";
+                const aHomeHref = aHome.getAttribute("href");
+                errorMsg = `First anchor tag for home is missing the right href attribute: ${homeHref}.`;
+                if (!aHomeHref || !aHomeHref.includes(homeHref)) return wrong(errorMsg);
+
+                // check if the home anchor has the right inner text
+                const homeText = "Home";
+                const aHomeText = aHome.innerText;
+                errorMsg = `First anchor tag for home is missing the right inner text: ${homeText}.`;
+                if (!aHomeText.includes(homeText)) return wrong(errorMsg);
+
+                // REST OF THE ANCHORS IN LI
+                // check if there are 4 additional anchors
+                const links = liArr.filter(e => e.querySelector("a"));
+                errorMsg = `There should be anchor tags inside each list item tags, found: ${links.length}.`;
+                if (links.length !== liTotal) return wrong(errorMsg);
+
+                // check if the rest of the anchors have the right class
+                const aClass = "nav-link";
+                const aClasses = liArr.filter(e => !e.querySelector("a").className.includes(aClass));
+                errorMsg = `The anchor tags inside the list item tags should have the right Bootstrap class: '${aClass}'.`;
+                if (aClasses.length > 0) return wrong(errorMsg);
+
+                // ABOUT ANCHOR
+                // check if about anchor has the right href
+                const aAbout = liArr[1].querySelector("a")
+                const aAboutHref = aAbout.getAttribute("href");
+                const aboutHref = "#about";
+                errorMsg = `The anchor tags for about should have the right href attribute: ${aboutHref}.`;
+                if (!aAboutHref || !aAboutHref.includes(aboutHref)) return wrong(errorMsg);
+
+                // check if about anchor has the right inner text
+                const aboutText = "About";
+                const aAboutText = aAbout.innerText;
+                errorMsg = `The anchor tags for about should have the right inner text: ${aboutText}.`;
+                if (!aAboutText.includes(aboutText)) return wrong(errorMsg);
+
+                // PRODUCTS ANCHOR
+                // check if products anchor the right href
+                const aProducts = liArr[2].querySelector("a");
+                const aProductsHref = aProducts.getAttribute("href");
+                const productsHref = "#products";
+                errorMsg = `The anchor tags for products should have the right href attribute: ${productsHref}.`;
+                if (!aProductsHref || !aProductsHref.includes(productsHref)) return wrong(errorMsg);
+
+                // check if products anchor has the right inner text
+                const productsText = "Products";
+                const aProductsText = aProducts.innerText;
+                errorMsg = `The anchor tags for products should have the right inner text: ${productsText}.`;
+                if (!aProductsText.includes(productsText)) return wrong(errorMsg);
+
+                // REVIEWS ANCHOR
+                // check if reviews anchor the right href
+                const aReviews = liArr[3].querySelector("a");
+                const aReviewsHref = aReviews.getAttribute("href");
+                const reviewsHref = "#reviews";
+                errorMsg = `The anchor tags for reviews should have the right href attribute: ${reviewsHref}.`;
+                if (!aReviewsHref || !aReviewsHref.includes(reviewsHref)) return wrong(errorMsg);
+
+                // check if reviews anchor has the right inner text
+                const reviewsText = "Reviews";
+                const aReviewsText = aReviews.innerText;
+                errorMsg = `The anchor tags for reviews should have the right inner text: ${reviewsText}.`;
+                if (!aReviewsText.includes(reviewsText)) return wrong(errorMsg);
+
+                // CONTACT ANCHOR
+                // check if contact anchor the right href
+                const aContact = liArr[4].querySelector("a");
+                const aContactHref = aContact.getAttribute("href");
+                const contactHref = "#contact";
+                errorMsg = `The anchor tags for contact should have the right href attribute: ${contactHref}.`;
+                if (!aContactHref || !aContactHref.includes(contactHref)) return wrong(errorMsg);
+
+                // check if contact anchor has the right inner text
+                const contactText = "Contact";
+                const aContactText = aContact.innerText;
+                errorMsg = `The anchor tags for contact should have the right inner text: ${contactText}.`;
+                if (!aContactText.includes(contactText)) return wrong(errorMsg);
+
+                return correct();
+            }),
+            this.page.execute(() => {
+                // test 4
+                // MAIN
+                // check if main exist
+                const main = document.body.querySelector("main");
+                let errorMsg = "main tag is missing in the body of the HTML document.";
+                if (!main) return wrong(errorMsg);
+
+                // CONTAINER DIV
+                // check if container div exist
+                const container = main.querySelector("div");
+                errorMsg = "Container div that should wrap the page components is missing in the main tag.";
+                if (!container) return wrong(errorMsg);
+
+                // check if the container div has the right bootstrap classes
+                const containerClasses = "container-fluid p-0".split(" ");
+                const missingContainerClasses = containerClasses.filter(e => !container.className.includes(e));
+                errorMsg = `Container div is missing the correct Bootstrap classes: '${missingContainerClasses}'`;
+                if (missingContainerClasses.length > 0) return wrong(errorMsg);
+
+                // HOME DIV
+                // check if home div exist with the right id
+                const home = document.getElementById("home");
+                errorMsg = `Container div is missing the inner div with the id: home.`;
+                if (!home) return wrong(errorMsg);
+
+                // check if home div has the right classes
+                const homeClasses = "d-flex flex-column-reverse flex-md-row p-0 bg-light".split(" ");
+                const missingHomeClasses = homeClasses.filter(e => !home.className.includes(e));
+                errorMsg = `Home div is missing the these Bootstrap classes: '${missingHomeClasses}'.`;
+                if (missingHomeClasses.length > 0) return wrong(errorMsg);
+
+                // INNER CONTENT DIV
+                // check if text content inner div exist
+                const contentDiv = home.querySelector("div");
+                errorMsg = `Home div is missing the inner-wrapper div for the text content and button.`;
+                if (!contentDiv) return wrong(errorMsg);
+
+                // check if text content div has the right classes
+                const contentDivClasses = "container-fluid m-auto p-5".split(" ");
+                const missingContentDivClasses = contentDivClasses.filter(e => !contentDiv.className.includes(e));
+                errorMsg = `The content div in the home div is missing these Bootstrap classes: '${missingContentDivClasses}'`;
+                if (missingContentDivClasses.length > 0) return wrong(errorMsg);
+
+                // H1
+                // check if h1 exist inside content div
+                const h1 = contentDiv.querySelector("h1");
+                errorMsg = `Home content div is missing the h1 tag.`;
+                if (!h1) return wrong(errorMsg);
+
+                // check if h1 has the right classes
+                const h1Classes = "display-1 fw-bold".split(" ");
+                const missingH1Classes = h1Classes.filter(e => !h1.className.includes(e));
+                errorMsg = `The h1 tag in the home div is missing these Bootstrap classes: '${missingH1Classes}'`;
+                if (missingH1Classes.length > 0) return wrong(errorMsg);
+
+                // check if h1 has the right text content
+                const h1Content = "Hyperskill Cafe";
+                errorMsg = `The h1 tag in the home div is missing the right inner text: ${h1Content}`;
+                if (!h1.innerText.includes(h1Content)) return wrong(errorMsg);
+
+                // P
+                // check if p exist inside content div
+                const p = contentDiv.querySelector("p");
+                errorMsg = `Home content div is missing the p tag.`;
+                if (!p) return wrong(errorMsg);
+
+                // check if p has the right classes
+                const pClasses = "col-md-8 py-3 lead fs-4".split(" ");
+                const missingPClasses = pClasses.filter(e => !p.className.includes(e));
+                errorMsg = `The p tag inside home content is missing these Bootstrap classes: '${missingPClasses}' .`;
+                if (missingPClasses.length > 0) return wrong(errorMsg);
+
+                // check if p contains the lorem ipsum inner text
+                const loremIpsum = "Lorem ipsum";
+                errorMsg = `The p tag inside home content is missing this inner text: ${loremIpsum} .`;
+                if (!p.innerText.includes(loremIpsum)) return wrong(errorMsg);
+
+                // ANCHOR TO PRODUCTS
+                // check if anchor exist in home content
+                const a = contentDiv.querySelector("a");
+                errorMsg = `Home content div is missing the a tag for the link to products.`;
+                if (!a) return wrong(errorMsg);
+
+                // check if anchor has the right href
+                const hrefValue = "#products";
+                const aHref = a.getAttribute("href");
+                errorMsg = `The a tag for the link to products is missing the right href: ${hrefValue} .`;
+                if (!aHref || !aHref.includes(hrefValue)) return wrong(errorMsg);
+
+                // BUTTON
+                // check if button exist in home content
+                const button = a.querySelector("button");
+                errorMsg = `The a tag for the link to products is missing the inner button in the home content.`;
+                if (!button) return wrong(errorMsg);
+
+                // check if button has the right classes
+                const buttonClasses = "btn btn-primary btn-lg".split(" ");
+                const missingButtonClasses = buttonClasses.filter(e => !button.className.includes(e));
+                errorMsg = `The inner button inside a tag in the home content is missing these Bootstrap classes: '${missingButtonClasses}' .`;
+                if (missingButtonClasses.length > 0) return wrong(errorMsg);
+
+                // check if button has the right type
+                const typeValue = "button";
+                const buttonType = button.getAttribute("type");
+                errorMsg = `The inner button tag inside a tag in the home content is missing the right type attribute: ${typeValue} .`;
+                if (!buttonType || !buttonType.includes(typeValue)) return wrong(errorMsg);
+
+                // check if button has the right inner text
+                const buttonText = "Discover our products";
+                errorMsg = `The inner button tag inside a tag in the home content is missing the right inner text: ${buttonText} .`;
+                if (!button.innerText.includes(buttonText)) return wrong(errorMsg);
+
+                // IMG CONTAINER DIV
+                // check if img container div exist
+                const imgDiv = home.querySelectorAll("div")[1];
+                errorMsg = `The wrapper div for the image inside home div is missing.`;
+                if (!imgDiv) return wrong(errorMsg);
+
+                // check if img container div has the right class
+                const imgDivClasses = "container-fluid p-0".split(" ");
+                const missingImgDivClasses = imgDivClasses.filter(e => !imgDiv.className.includes(e));
+                errorMsg = `The wrapper div for the image inside home div is missing these Bootstrap classes: '${missingImgDivClasses}'.`;
+                if (missingImgDivClasses.length > 0) return wrong(errorMsg);
+
+                // IMG
+                // check if img exist in home
+                const img = imgDiv.querySelector("img");
+                errorMsg = `The wrapper div for the image inside home div is missing the img tag.`;
+                if (!img) return wrong(errorMsg);
+
+                // check if img has the right class
+                const imgClasses = "img-fluid w-100".split(" ");
+                const missingImgClasses = imgClasses.filter(e => !img.className.includes(e));
+                errorMsg = `The img tag inside home div is missing these Bootstrap class: '${missingImgClasses}' .`;
+                if (missingImgClasses.length > 0) return wrong(errorMsg);
+
+                // check if img has the src attribute
+                const src = img.getAttribute("src");
+                //const alt = img.getAttribute("alt");
+                errorMsg = `The img tag inside home div is missing src attribute.`;
+                if (!src || src.trim().length <= 1) return wrong(errorMsg);
+
+                // check if img has the alt attribute
+                const alt = img.getAttribute("alt");
+                errorMsg = `The img tag inside home div is missing alt attribute.`;
+                if (!alt || alt.trim().length <= 1) return wrong(errorMsg);
+
+                return correct();
+
+            }),
+            this.page.execute(() => {
+                // test 5
+                // check the link amount
+                const links = Array.from(document.head.querySelectorAll("link"));
+                let errorMsg = `There should be at least 5 links in the head of the HTML document, found: ${links.length}`;
+                if (links.length < 5) return wrong(errorMsg);
+
+                // GOOGLE FONT
+                // check if link exist for google font
+                const linkGoogleFont1 = "https://fonts.googleapis.com/css2?family";
+                const linkGoogleFont2 = "https://fonts.gstatic.com";
+                const isGoogleFontLinked = links.find(e =>  e.attributes
+                    .getNamedItem("href") &&  e.attributes
+                    .getNamedItem("href").value.includes(linkGoogleFont1 || linkGoogleFont2));
+                errorMsg = `Link the Google Font with the HTML document correctly in the head.`;
+
+                if (!isGoogleFontLinked) return wrong(errorMsg);
+
+                // CSS LINK
+                // check if css link has the right href
+                const linkCss = "style.css"
+                const isCssLinked = links.find(e => e.attributes
+                    .getNamedItem("href") && e.attributes
+                    .getNamedItem("href").value.includes(linkCss));
+                errorMsg = `Link the style.css file with the HTML document in the head.`;
+                if (!isCssLinked) return wrong(errorMsg);
+
+                // CSS FONT FAMILY
+                // check if css has the prop for font family
+                const body = document.body;
+                const bodyStyle = window.getComputedStyle(body).fontFamily;
+                const regular = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"';
+                errorMsg = "The font-family property contains the default fonts for the body inside your CSS file.";
+                if (!bodyStyle || bodyStyle.includes(regular) || bodyStyle.trim().length < 1) return wrong(errorMsg);
+
+                return correct();
+            }),
+            this.page.execute(() => {
+                // test 6
+                // ABOUT DIV
+                // check if about div exist
+                const about = document.getElementById("about");
+                let errorMsg = "About div with the correct id doesn't exist inside the body.";
+                if (!about) return wrong(errorMsg);
+
+                // check if about div has the right classes
+                const aboutClasses = "container-fluid bg-light p-0".split(" ");
+                const missingAboutClasses = aboutClasses.filter(e => !about.className.includes(e));
+                errorMsg = `About div is missing these Bootstrap classes: '${missingAboutClasses}'`;
+                if (missingAboutClasses.length > 0) return wrong(errorMsg);
+
+                // IMG WRAPPER DIV
+                // check if wrapper exist
+                const imgWrapper = about.querySelector("div");
+                errorMsg = "About div doesn't contain a wrapper div for the image.";
+                if (!imgWrapper) return wrong(errorMsg);
+
+                // check if wrapper has the right classes
+                const imgWrapperClasses = "container-fluid p-0".split(" ");
+                const missingImgWrapperClasses = imgWrapperClasses.filter(e => !imgWrapper.className.includes(e));
+                errorMsg = `Wrapper div for the image inside About div is missing these Bootstrap classes: '${missingImgWrapperClasses}'`;
+                if (missingImgWrapperClasses.length > 0) return wrong(errorMsg);
+
+                // IMG
+                // check if img exist
+                const img = imgWrapper.querySelector("img");
+                errorMsg = `The wrapper div for the image inside about div is missing the img tag.`;
+                if (!img) return wrong(errorMsg);
+
+                // check if img has the right class
+                const imgClasses = "img-fluid";
+                const missingImgClass = !img.className.includes(imgClasses);
+                errorMsg = `The img tag inside about div is missing this Bootstrap class: '${imgClasses}' .`;
+                if (missingImgClass) return wrong(errorMsg);
+
+                // check if img has the src attribute
+                const src = img.getAttribute("src");
+                errorMsg = `The img tag inside about div is missing the src attribute.`;
+                if (!src || src.trim().length <= 1) return wrong(errorMsg);
+
+                // check if img has the alt attribute
+                const alt = img.getAttribute("alt");
+                errorMsg = `The img tag inside about div is missing the alt attribute.`;
+                if (!alt || alt.trim().length <= 1) return wrong(errorMsg);
+
+                // TEXT WRAPPER DIV
+                // check if wrapper exist
+                const textWrapperDiv = about.querySelectorAll("div")[1];
+                errorMsg = `About div is missing the inner-wrapper div for the text content.`;
+                if (!textWrapperDiv) return wrong(errorMsg);
+
+                // check if text wrapper div has the right classes
+                const textWrapperDivClasses = "container-fluid p-5".split(" ");
+                const missingTextWrapperDivClasses = textWrapperDivClasses.filter(e => !textWrapperDiv.className.includes(e));
+                errorMsg = `The wrapper div for the text content in the about div is missing these Bootstrap classes: '${missingTextWrapperDivClasses}'`;
+                if (missingTextWrapperDivClasses.length > 0) return wrong(errorMsg);
+
+                // H2
+                // check if h2 exist inside content div
+                const h2 = textWrapperDiv.querySelector("h2");
+                errorMsg = `Wrapper div inside about div is missing the h2 tag.`;
+                if (!h2) return wrong(errorMsg);
+
+                // check if h2 has the right classes
+                const h2Classes = "display-5 fw-bold".split(" ");
+                const missingH2Classes = h2Classes.filter(e => !h2.className.includes(e));
+                errorMsg = `The h2 tag in the about div is missing these Bootstrap classes: '${missingH2Classes}'`;
+                if (missingH2Classes.length > 0) return wrong(errorMsg);
+
+                // check if h2 has the right text content
+                const h2Content = "About Us";
+                errorMsg = `The h2 tag in the about div is missing the right inner text: ${h2Content}`;
+                if (!h2.innerText.includes(h2Content)) return wrong(errorMsg);
+
+                // P
+                // check if p exist inside content div
+                const p = textWrapperDiv.querySelector("p");
+                errorMsg = `Wrapper div inside about div is missing the p tag.`;
+                if (!p) return wrong(errorMsg);
+
+                // check if p has the right classes
+                const pClasses = "py-3 fs-5".split(" ");
+                const missingPClasses = pClasses.filter(e => !p.className.includes(e));
+                errorMsg = `The p tag inside about div is missing these Bootstrap classes: '${missingPClasses}' .`;
+                if (missingPClasses.length > 0) return wrong(errorMsg);
+
+                // check if p contains the lorem ipsum inner text
+                const loremIpsum = "Lorem ipsum";
+                errorMsg = `The p tag inside about content is missing this inner text: ${loremIpsum} .`;
+                if (!p.innerText.includes(loremIpsum)) return wrong(errorMsg);
+
+                return correct();
+            }),
+            this.page.execute(() => {
+                // test 7
+                // PRODUCTS DIV
+                // check if products div exist
+                const products = document.getElementById("products");
+                let errorMsg = "Products div with the correct id doesn't exist inside the body.";
+                if (!products) return wrong(errorMsg);
+
+                // check if products div has the right classes
+                const productsClasses = "container-fluid bg-light p-0".split(" ");
+                const missingProductsClasses = productsClasses.filter(e => !products.className.includes(e));
+                errorMsg = `Products div is missing these Bootstrap classes: '${missingProductsClasses}' .`;
+                if (missingProductsClasses.length > 0) return wrong(errorMsg);
+
+                // H2
+                // check if h2 exist inside products div
+                const h2 = products.querySelector("h2");
+                errorMsg = `Products div is missing the h2 tag.`;
+                if (!h2) return wrong(errorMsg);
+
+                // check if h2 has the right classes
+                const h2Classes = "display-5 pt-5 px-5 fw-bold".split(" ");
+                const missingH2Classes = h2Classes.filter(e => !h2.className.includes(e));
+                errorMsg = `The h2 tag in the products div is missing these Bootstrap classes: '${missingH2Classes}' .`;
+                if (missingH2Classes.length > 0) return wrong(errorMsg);
+
+                // check if h2 has the right text content
+                const h2Content = "Our Products";
+                errorMsg = `The h2 tag in the products div is missing the right inner text: ${h2Content} .`;
+                if (!h2.innerText.includes(h2Content)) return wrong(errorMsg);
+
+                // WRAPPER DIV
+                // check if wrapper div exist
+                const wrapperDiv = products.querySelector("div");
+                errorMsg = "Wrapper div inside products div doesn't exist.";
+                if (!wrapperDiv) return wrong(errorMsg);
+
+                // check if wrapper div has the right class
+                const wrapperClass = "px-5";
+                errorMsg = `Wrapper div inside products div doesn't have this Bootstrap class: '${wrapperClass}' .`;
+                if (!wrapperDiv.className.includes(wrapperClass)) return wrong(errorMsg);
+
+                // ROW DIV
+                // check if row div exist
+                const row = wrapperDiv.querySelector("div");
+                errorMsg = "Row div inside wrapper div in products div doesn't exist.";
+                if (!row) return wrong(errorMsg);
+
+                // check if row div has the right class
+                const rowClass = "row";
+                errorMsg = `Row div inside products div doesn't have this Bootstrap class: '${rowClass}' .`;
+                if (!row.className.includes(rowClass)) return wrong(errorMsg);
+
+                // COL DIVS
+                // check if there are 6 divs inside row div
+                const colDivs = Array.from(row.children);
+                const totalAmount = 6;
+                errorMsg = `The amount of col divs inside products row div should be ${totalAmount}, instead it's: ${colDivs.length} `;
+                if (colDivs.length !== totalAmount) return wrong(errorMsg);
+
+                // check if all cols are div tags
+                errorMsg = "Some of the cols aren't div tags."
+                for (let i = 0; i < colDivs.length; i++) {
+                    const div = colDivs[i].nodeName;
+                    const divNodeName = "DIV";
+                    if (div !== divNodeName) return wrong(errorMsg);
+                }
+
+                // check if col divs have the right classes
+                const colDivsClasses = "col-lg-4 col-md-6 py-3".split(" ");
+                const temp = [];
+                colDivs.forEach(div => {
+                    temp.push(colDivsClasses.find(divClass => !div.className.includes(divClass)));
+                });
+                const missingColClasses = [];
+                temp.forEach(e => e && missingColClasses.push(e));
+                errorMsg = `Some of the col divs inside products row div are missing these Bootstrap classes: '${missingColClasses}' .`;
+                if (missingColClasses.length > 0) return wrong(errorMsg);
+
+                // CARD DIVS
+                // check if 6 card divs exist with card class
+                const cardDivs = Array.from(row.getElementsByClassName("card"));
+                errorMsg = `The amount of card divs, with the right Bootstrap class, inside col divs should be ${totalAmount}, instead it's: ${cardDivs.length} `;
+                if (cardDivs.length !== totalAmount) return wrong(errorMsg);
+
+                // check if all cards are div tags
+                errorMsg = "Some of the cards aren't div tags."
+                for (let i = 0; i < cardDivs.length; i++) {
+                    const div = cardDivs[i].nodeName;
+                    const divNodeName = "DIV";
+                    if (div !== divNodeName) return wrong(errorMsg);
+                }
+
+                // check if card inside col
+                errorMsg = "Some of the cards aren't inside of the col divs.";
+                for (let i = 0; i < cardDivs.length; i++) {
+                    const parent = cardDivs[i].parentElement.className;
+                    const parentClass = "col";
+                    if (!parent.includes(parentClass)) return wrong(errorMsg);
+                }
+
+                // check if card divs have the right class
+                const cardClass = "h-100";
+                const missingCardClass = cardDivs.filter(e => !e.className.includes(cardClass));
+                errorMsg = `${missingCardClass.length} of the card divs are missing this Bootstrap class: '${cardClass}'`;
+                if (missingCardClass.length > 0) return wrong(errorMsg);
+
+                // CARD IMG
+                // check if there are 6 card img with right class
+                const cardImgClasses = "card-img-top img-fluid h-100";
+                const cardImgs = Array.from(row.getElementsByClassName(cardImgClasses));
+                errorMsg = `The amount of card images, with the right Bootstrap classes: '${cardImgClasses}', inside card divs should be ${totalAmount}, instead it's: ${cardImgs.length} `;
+                if (cardImgs.length !== totalAmount) return wrong(errorMsg);
+
+                // check if all card-img are img tags
+                errorMsg = "Some of the card-images aren't img tags."
+                for (let i = 0; i < cardImgs.length; i++) {
+                    const img = cardImgs[i].nodeName;
+                    const imgNodeName = "IMG";
+                    if (img !== imgNodeName) return wrong(errorMsg);
+                }
+
+                // check if card-body inside card
+                errorMsg = "Some of the card-images aren't inside of the card divs.";
+                for (let i = 0; i < cardImgs.length; i++) {
+                    const parent = cardImgs[i].parentElement.className;
+                    const parentClass = "card";
+                    if (!parent.includes(parentClass)) return wrong(errorMsg);
+                }
+
+
+                // check if card imgs have the src attribute
+                errorMsg = `Some of the card images inside card div are missing the src attribute.`;
+                for (let i = 0; i < cardImgs.length; i++) {
+                    const src = cardImgs[i].getAttribute("src");
+                    if (!src || src.trim().length <= 1) return wrong(errorMsg);
+                }
+
+                // check if card imgs have  the alt attribute
+                errorMsg = `Some of the card images inside card div are missing the alt attribute.`;
+                for (let i = 0; i < cardImgs.length; i++) {
+                    const alt = cardImgs[i].getAttribute("alt");
+                    if (!alt || alt.trim().length <= 1) return wrong(errorMsg);
+                }
+
+                // CARD BODY DIVS
+                // check if there are 6 card body div with right class
+                const cardBodyDivs = Array.from(row.getElementsByClassName("card-body"));
+                errorMsg = `The amount of card-body divs, with the right Bootstrap class, inside card divs should be ${totalAmount}, instead it's: ${cardBodyDivs.length} `;
+                if (cardBodyDivs.length !== totalAmount) return wrong(errorMsg);
+
+                // check if all card-bodies are div tags
+                errorMsg = "Some of the card-bodies aren't div tags."
+                for (let i = 0; i < cardBodyDivs.length; i++) {
+                    const div = cardBodyDivs[i].nodeName;
+                    const divNodeName = "DIV";
+                    if (div !== divNodeName) return wrong(errorMsg);
+                }
+
+                // check if card-body inside card
+                errorMsg = "Some of the card-bodies aren't inside of the card divs.";
+                for (let i = 0; i < cardBodyDivs.length; i++) {
+                    const parent = cardBodyDivs[i].parentElement.className;
+                    const parentClass = "card";
+                    if (!parent.includes(parentClass)) return wrong(errorMsg);
+                }
+
+                // CARD-TITLES H5
+                // check if there are 6 card-titles with the right class
+                const cardTitles = Array.from(row.getElementsByClassName("card-title"));
+                errorMsg = `The amount of card-title h5 tags, with the right Bootstrap class, inside card-body divs should be ${totalAmount}, instead it's: ${cardTitles.length} `;
+                if (cardTitles.length !== totalAmount) return wrong(errorMsg);
+
+                // check if all card-titles are h5 tags
+                errorMsg = "Some of the card-titles aren't h5 tags."
+                for (let i = 0; i < cardTitles.length; i++) {
+                    const h5 = cardTitles[i].nodeName;
+                    const h5NodeName = "H5";
+                    if (h5 !== h5NodeName) return wrong(errorMsg);
+                }
+
+                // check if card-title inside card-body
+                errorMsg = "Some of the card-titles aren't inside of the card-body divs.";
+                for (let i = 0; i < cardTitles.length; i++) {
+                    const parent = cardTitles[i].parentElement.className;
+                    const parentClass = "card-body";
+                    if (parent !== parentClass) return wrong(errorMsg);
+                }
+
+                // check if card-titles have inner text.
+                errorMsg = "Some of the card-titles are missing an inner text.";
+                for (let i = 0; i < cardTitles.length; i++) {
+                    const innerText = cardTitles[i].innerHTML;
+                    if (innerText.trim().length <= 1) return wrong(errorMsg);
+                }
+
+                // CARD-TEXT P
+                // check if there are 6 card-texts with the right class
+                const cardTexts = Array.from(row.getElementsByClassName("card-text"));
+                errorMsg = `The amount of card-text p tags, with the right Bootstrap class, inside card-body divs should be ${totalAmount}, instead it's: ${cardTexts.length} `;
+                if (cardTexts.length !== totalAmount) return wrong(errorMsg);
+
+                // check if all card-texts are p tags
+                errorMsg = "Some of the card-texts aren't p tags."
+                for (let i = 0; i < cardTexts.length; i++) {
+                    const p = cardTexts[i].nodeName;
+                    const pNodeName = "P";
+                    if (p !== pNodeName) return wrong(errorMsg);
+                }
+
+                // check if card-text inside card-body
+                errorMsg = "Some of the card-texts aren't inside of the card-body divs.";
+                for (let i = 0; i < cardTexts.length; i++) {
+                    const parent = cardTexts[i].parentElement.className;
+                    const parentClass = "card-body";
+                    if (parent !== parentClass) return wrong(errorMsg);
+                }
+
+                // check if card-texts have inner text.
+                errorMsg = "Some of the card-texts are missing an inner text.";
+                for (let i = 0; i < cardTexts.length; i++) {
+                    const innerText = cardTexts[i].innerHTML;
+                    if (innerText.trim().length <= 1) return wrong(errorMsg);
+                }
+
+                return correct();
+
+            }),
+            this.page.execute(() => {
+                // test 8
+                // SCRIPT
+                // check if body contains the custom script tag
+                const scripts = Array.from(document.body.querySelectorAll("script"));
+                const linkScript = "script.js";
+                const isScriptLinked = scripts.find(e => e.attributes
+                    .getNamedItem("src") &&  e.attributes
+                    .getNamedItem("src").value.includes(linkScript));
+                let errorMsg = `Link your javascript file as a script tag with the HTML document in the body. The file name should be: 'script.js' .`;
+                if (!isScriptLinked) return wrong(errorMsg);
+
+                return correct();
+            }),
+            this.page.execute(() => {
+                // test 9
+                // REVIEWS DIV
+                // check if reviews div exist,
+                const reviews = document.getElementById("reviews");
+                let errorMsg = "Reviews div with the correct id doesn't exist inside the body.";
+                if (!reviews) return wrong(errorMsg);
+
+                // check if reviews div has the right classes
+                const reviewsClasses = "container-fluid bg-light p-0".split(" ");
+                const missingReviewsClasses = reviewsClasses.filter(e => !reviews.className.includes(e));
+                errorMsg = `Reviews div is missing these Bootstrap classes: '${missingReviewsClasses}' .`;
+                if (missingReviewsClasses.length > 0) return wrong(errorMsg);
+
+                // H2
+                // check if h2 exist inside reviews div
+                const h2 = reviews.querySelector("h2");
+                errorMsg = `Reviews div is missing the h2 tag.`;
+                if (!h2) return wrong(errorMsg);
+
+                // check if h2 has the right classes
+                const h2Classes = "display-5 pt-5 px-5 fw-bold".split(" ");
+                const missingH2Classes = h2Classes.filter(e => !h2.className.includes(e));
+                errorMsg = `The h2 tag in the reviews div is missing these Bootstrap classes: '${missingH2Classes}' .`;
+                if (missingH2Classes.length > 0) return wrong(errorMsg);
+
+                // check if h2 has the right text content
+                const h2Content = "Reviews From Our Customers";
+                errorMsg = `The h2 tag in the reviews div is missing the right inner text: ${h2Content} .`;
+                if (!h2.innerText.includes(h2Content)) return wrong(errorMsg);
+
+                // TOGGLE BUTTON CONTAINER DIV
+                // check if toggle button wrapper div exist inside reviews div
+                const toggleContainerDiv = reviews.querySelector("div");
+                errorMsg = "Wrapper div for toggle-button inside reviews div doesn't exist.";
+                if (!toggleContainerDiv) return wrong(errorMsg);
+
+                // check if wrapper div has the right class
+                const toggleContainerClasses = "px-5 my-3".split(" ");
+                const missingToggleContainerClasses = toggleContainerClasses.filter(e => !toggleContainerDiv.className.includes(e));
+                errorMsg = `Wrapper div for toggle-button inside reviews div doesn't have these Bootstrap class: '${missingToggleContainerClasses}' .`;
+                if (missingToggleContainerClasses.length > 0) return wrong(errorMsg);
+
+                // TOGGLE BUTTON
+                // check if toggle-button exist
+                const toggleButton = toggleContainerDiv.querySelector("button");
+                errorMsg = "Toggle button in the container div inside reviews div doesn't exist.";
+                if (!toggleButton) return wrong(errorMsg);
+
+                // check if toggle-button has the right classes
+                const toggleClasses = "btn btn-primary".split(" ");
+                const missingToggleClasses = toggleClasses.filter(e => !toggleButton.className.includes(e));
+                errorMsg = `Toggle button in the container div inside reviews div doesn't have these Bootstrap class: '${missingToggleClasses}' .`;
+                if (missingToggleClasses.length > 0) return wrong(errorMsg);
+
+                // check if toggle-button has the right type
+                const typeValue = "button";
+                const toggleButtonType = toggleButton.getAttribute("type");
+                errorMsg = `Toggle button in the container div inside reviews div is missing the right type attribute: ${typeValue} .`;
+                if (!toggleButtonType || !toggleButtonType.includes(typeValue)) return wrong(errorMsg);
+
+                // check if toggle-button has the right inner text
+                const toggleButtonText = "Add Review";
+                errorMsg = `Toggle button in the container div inside reviews div is missing the right inner text: ${toggleButtonText} .`;
+                if (!toggleButton.innerText.includes(toggleButtonText)) return wrong(errorMsg);
+
+                // check if toggle-button has the right data-bs-toggle attribute
+                const dataBsToggleValue = "collapse";
+                const dataBsToggle = toggleButton.getAttribute("data-bs-toggle");
+                errorMsg = `Toggle button in the container div inside reviews div is missing the right data-bs-toggle attribute: ${dataBsToggleValue} .`;
+                if (!dataBsToggle || !dataBsToggle.includes(dataBsToggleValue)) return wrong(errorMsg);
+
+                // check if toggle-button has the right data-bs-target attribute
+                const dataBsTargetValue = "#collapseReview";
+                const dataBsTarget = toggleButton.getAttribute("data-bs-target");
+                errorMsg = `Toggle button in the container div inside reviews div is missing the right data-bs-target attribute: ${dataBsTargetValue} .`;
+                if (!dataBsTarget || !dataBsTarget.includes(dataBsTargetValue)) return wrong(errorMsg);
+
+                // check if toggle-button has the right aria-expanded attribute
+                const ariaExpandedValue = "false";
+                const ariaExpanded = toggleButton.getAttribute("aria-expanded");
+                errorMsg = `Toggle button in the container div inside reviews div is missing the right aria-expanded attribute: ${ariaExpandedValue} .`;
+                if (!ariaExpanded || !ariaExpanded.includes(ariaExpandedValue)) return wrong(errorMsg);
+
+                // check if toggle-button has the right aria-controls attribute
+                const ariaControlsValue = "collapseReview";
+                const ariaControls = toggleButton.getAttribute("aria-controls");
+                errorMsg = `Toggle button in the container div inside reviews div is missing the right aria-controls attribute: ${ariaControlsValue} .`;
+                if (!ariaControls || !ariaControls.includes(ariaControlsValue)) return wrong(errorMsg);
+
+                // COLLAPSE DIV
+                // check if collapse div exist
+                const collapseId = "#collapseReview"
+                const collapse = reviews.querySelector(collapseId);
+                errorMsg = `Collapse div inside reviews div with the right id doesn't exist. The id should be: ${collapseId}`;
+                if (!collapse) return wrong(errorMsg);
+
+                // check if collapse is a div tag.
+                const divNodeName = "DIV";
+                const collapseDiv = collapse.nodeName;
+                errorMsg = "Collapse component inside reviews div should be a div tag."
+                if (collapseDiv !== divNodeName) return wrong(errorMsg);
+
+                // check if collapse div has the right class
+                const collapseClass = "collapse";
+                errorMsg = `Collapse div inside reviews div is missing the right Bootstrap class: '${collapseClass}'.`;
+                if (!collapse.className.includes(collapseClass)) return wrong(errorMsg);
+
+                // FORM-CARD WRAPPER DIV
+                // check if card wrapper div exist
+                const cardContainer = collapse.querySelector("div");
+                errorMsg = "Card wrapper div inside reviews-collapse div doesn't exist."
+                if (!cardContainer) return wrong(errorMsg);
+
+                // check if card wrapper has the right class
+                const cardContainerClass = "px-5";
+                errorMsg = `Card wrapper div inside reviews-collapse div is missing the right Bootstrap class: '${cardContainerClass}'.`;
+                if (!cardContainer.className.includes(cardContainerClass)) return wrong(errorMsg);
+
+                // FORM CARD DIV
+                // check if form card exist
+                const formCardDiv = cardContainer.querySelector("div");
+                errorMsg = "Form card div in card-container, inside reviews-collapse, doesn't exist.";
+                if (!formCardDiv) return wrong(errorMsg);
+
+                // check if form card has the right classes
+                const cardClasses = "card card-body".split(" ");
+                const missingFormCardClasses = cardClasses.filter(e => !formCardDiv.className.includes(e));
+                errorMsg = `Form card div in card-container, inside reviews-collapse, is missing these Bootstrap classes: '${missingFormCardClasses}'.`;
+                if (missingFormCardClasses.length > 0) return wrong(errorMsg);
+
+                // FORM ROW
+                // check if form exist
+                const form = formCardDiv.querySelector("form");
+                errorMsg = "Form tag inside reviews-collapse doesn't exist.";
+                if (!form) return wrong(errorMsg);
+
+                // check if form has the right classes
+                const formClasses = "row g-3".split(" ");
+                const missingFormClasses = formClasses.filter(e => !form.className.includes(e));
+                errorMsg = `Form tag inside reviews-collapse, is missing these Bootstrap classes: '${missingFormClasses}'.`;
+                if (missingFormClasses.length > 0) return wrong(errorMsg);
+
+                // COL DIVS
+                // check if there are 4 col divs inside row div
+                const colDivs = Array.from(form.children);
+                const totalAmount = 4;
+                errorMsg = `The amount of col divs inside form row div should be ${totalAmount}, instead it's: ${colDivs.length} `;
+                if (colDivs.length !== totalAmount) return wrong(errorMsg);
+
+                // check if all cols are div tags
+                errorMsg = "Some of the cols aren't div tags."
+                for (let i = 0; i < colDivs.length; i++) {
+                    const div = colDivs[i].nodeName;
+                    const divNodeName = "DIV";
+                    if (div !== divNodeName) return wrong(errorMsg);
+                }
+
+                // check if the first 3 col divs have the right class
+                const colDivsClass = "col-md-4";
+                errorMsg = `Some of the first three col divs inside form row div are missing this Bootstrap class: '${colDivsClass}' .`;
+                for (let i = 0; i < colDivs.length - 1; i++) {
+                    const colClass = colDivs[i].className;
+                    if (!colClass.includes(colDivsClass)) return wrong(errorMsg);
+                }
+
+                // check if last col div has the right margin class
+                const lastCol = form.lastElementChild;
+                const col12 = "col-12";
+                errorMsg = `Last col div inside form row is missing this Bootstrap class: '${col12}'`;
+                if (!lastCol.className.includes(col12)) return wrong(errorMsg);
+
+                // FORM LABELS
+                // check if there are 3 form labels
+                const labelClass = "form-label";
+                const labels = Array.from(form.getElementsByClassName(labelClass));
+                const labelAmount = 3;
+                errorMsg = `The amount of labels for form inputs with the Bootstrap class of '${labelClass}' should be ${labelAmount}, instead it's: ${labels.length} `;
+                if (labels.length !== labelAmount) return wrong(errorMsg);
+
+                // check if labels have inner text.
+                errorMsg = "Some of the labels are missing an inner text.";
+                for (let i = 0; i < labels.length; i++) {
+                    const innerText = labels[i].innerText;
+                    if (innerText.trim().length <= 1) return wrong(errorMsg);
+                }
+
+                // check if labels have a for attribute
+                const labelsForAttrs = ["reviewTitle", "reviewText", "reviewName"]; // this list is used to check for inputs id's are matching
+                for (let i = 0; i < labels.length; i++) {
+                    const forAttr = labels[i].getAttribute("for");
+                    let missingFor = "";
+                    if (forAttr !== labelsForAttrs[i]) missingFor = labelsForAttrs[i];
+                    errorMsg = `Some of the labels are missing their correct for attributes: ${missingFor}.`;
+                    if (!forAttr ||  missingFor) return wrong(errorMsg);
+                }
+
+                // check if labels inside cols
+                errorMsg = "Some of the labels aren't inside of the col divs.";
+                for (let i = 0; i < labels.length; i++) {
+                    const parent = labels[i].parentElement.className;
+                    const parentClass = "col-md-4";
+                    if (!parent.includes(parentClass)) return wrong(errorMsg);
+                }
+
+                // FORM INPUTS
+                // check if there are 3 form inputs
+                const inputClass = "form-control";
+                const inputs = Array.from(form.getElementsByClassName(inputClass));
+                const inputAmount = 3;
+                errorMsg = `The amount of form inputs with the Bootstrap class of '${inputClass}' should be ${inputAmount}, instead it's: ${inputs.length} `;
+                if (inputs.length !== inputAmount) return wrong(errorMsg);
+
+                // check if inputs have a type attribute
+                const inputType = "text";
+                errorMsg = `Some of the inputs are missing the correct type attribute: ${inputType}`;
+                for (let i = 0; i < inputs.length; i++) {
+                    const typeAttr = inputs[i].getAttribute("type");
+                    if (!typeAttr || !typeAttr.includes(inputType)) return wrong(errorMsg);
+                }
+
+                // check if inputs have the correct ids
+                errorMsg = "Some of the inputs' ids are not matching their labels' for attribute value.";
+                for (let i = 0; i < inputs.length; i++) {
+                    const id = inputs[i].getAttribute("id");
+                    if (id !== labelsForAttrs[i]) return wrong(errorMsg);
+                }
+
+                // check if inputs inside cols
+                errorMsg = "Some of the inputs aren't inside of the col divs.";
+                for (let i = 0; i < inputs.length; i++) {
+                    const parent = inputs[i].parentElement.className;
+                    const parentClass = "col-md-4";
+                    if (!parent.includes(parentClass)) return wrong(errorMsg);
+                }
+
+                // SUBMIT BUTTON
+                // check if submit button exist
+                const submitButton = form.querySelector("button");
+                errorMsg = "Submit button inside reviews-form doesn't exist.";
+                if (!submitButton) return wrong(errorMsg);
+
+                // check if submit button has the right id
+                const submitButtonId = submitButton.getAttribute("id");
+                const correctSubmitId = "reviewButton";
+                errorMsg = `Submit button inside reviews-form doesn't have the correct id: ${correctSubmitId}.`;
+                if (!submitButtonId || !submitButtonId.includes(correctSubmitId)) return wrong(errorMsg);
+
+                // check if submit button has the right type
+                const submitType = "submit";
+                const submitButtonType = submitButton.getAttribute("type");
+                errorMsg = `Submit button inside reviews-form is missing the correct type attribute: ${submitType}`;
+                if (!submitButtonType || !submitButtonType.includes(submitType)) return wrong(errorMsg);
+
+                // check if submit button has the right classes
+                const submitClasses = "btn btn-primary".split(" ");
+                const missingSubmitClasses = submitClasses.filter(e => !submitButton.className.includes(e));
+                errorMsg = `Submit button inside reviews-form is missing these Bootstrap classes: '${missingSubmitClasses}'`;
+                if (missingSubmitClasses.length > 0) return wrong(errorMsg);
+
+                // check if submit has an inner text
+                const submitButtonText = submitButton.innerText;
+                errorMsg = "Submit button inside reviews-form is missing an inner text.";
+                if (submitButtonText.trim().length <= 1) return wrong(errorMsg);
+
+                // check if submit button inside col
+                errorMsg = "Submit button inside reviews-form isn't inside of a col div.";
+                const submitParent = submitButton.parentElement.className;
+                const submitParentClass = "col-12";
+                if (!submitParent.includes(submitParentClass)) return wrong(errorMsg);
+
+                return correct();
+            }),
+            this.page.execute(() => {
+                // test 10
+                // REVIEWS-ROW CONTAINER DIV
+                // check if container div exist with the right class
+                const reviews = document.getElementById("reviews");
+
+                const reviewsContainer = reviews.lastElementChild;
+                const reviewsContainerDiv = reviewsContainer.nodeName;
+                const containerDiv = "DIV";
+                const containerClass = "px-5";
+                let errorMsg = `The last element inside reviews div should be a wrapper div with this Bootstrap class: '${containerClass}'  for the list of reviews.`;
+                if (reviewsContainerDiv !== containerDiv || !reviewsContainer.className.includes(containerClass))
+                    return wrong(errorMsg);
+
+                // REVIEWS ROW
+                // check if row div exist
+                const row = reviewsContainer.querySelector("div");
+                errorMsg = "The row div inside wrapper div in reviews container doesn't exist.";
+                if (!row) return wrong(errorMsg);
+
+                // check if row div has an id
+                const rowId = row.getAttribute("id");
+                const correctRowId = "reviewsRow";
+                errorMsg = `The row div inside wrapper div in reviews container is missing the correct id attribute: ${correctRowId}.`;
+                if (!rowId || !rowId.includes(correctRowId)) return wrong(errorMsg);
+
+                // check if row div has the right class
+                const rowClass = "row";
+                errorMsg = `The row div inside reviews container is missing this Bootstrap class: '${rowClass}'`;
+                if (!row.className.includes(rowClass)) return wrong(errorMsg);
+
+                // COL DIVS
+                // check if there are 3 divs inside row div
+                const colDivs = Array.from(row.children);
+                const totalAmount = 3;
+                errorMsg = `The amount of col divs inside reviews row div should be ${totalAmount}, instead it's: ${colDivs.length} `;
+                if (colDivs.length !== totalAmount) return wrong(errorMsg);
+
+                // check if all cols are div tags
+                errorMsg = "Some of the reviews-cols aren't div tags."
+                for (let i = 0; i < colDivs.length; i++) {
+                    const div = colDivs[i].nodeName;
+                    const divNodeName = "DIV";
+                    if (div !== divNodeName) return wrong(errorMsg);
+                }
+
+                // check if col divs have the right classes
+                const colDivsClasses = "col-lg-4 col-md-6 py-3".split(" ");
+                const temp = [];
+                colDivs.forEach(div => {
+                    temp.push(colDivsClasses.find(divClass => !div.className.includes(divClass)));
+                });
+                const missingColClasses = [];
+                temp.forEach(e => e && missingColClasses.push(e));
+                errorMsg = `Some of the col divs inside reviews row div are missing these Bootstrap classes: '${missingColClasses}' .`;
+                if (missingColClasses.length > 0) return wrong(errorMsg);
+
+                // CARD DIVS
+                // check if 3 card divs exist with card class
+                const cardClassNames = "card h-100"
+                const cardDivs = Array.from(row.getElementsByClassName(cardClassNames));
+                errorMsg = `The amount of card divs, with the right Bootstrap classes: '${cardClassNames}', inside reviews-col divs should be ${totalAmount}, instead it's: ${cardDivs.length} `;
+                if (cardDivs.length !== totalAmount) return wrong(errorMsg);
+
+                // check if all cards are div tags
+                errorMsg = "Some of the reviews-cards aren't div tags."
+                for (let i = 0; i < cardDivs.length; i++) {
+                    const div = cardDivs[i].nodeName;
+                    const divNodeName = "DIV";
+                    if (div !== divNodeName) return wrong(errorMsg);
+                }
+
+                // check if card inside col
+                errorMsg = "Some of the reviews-cards aren't inside of the col divs.";
+                for (let i = 0; i < cardDivs.length; i++) {
+                    const parent = cardDivs[i].parentElement.className;
+                    const parentClass = "col";
+                    if (!parent.includes(parentClass)) return wrong(errorMsg);
+                }
+
+                // CARD BODY DIVS
+                // check if there are 3 card body div with right class
+                const cardBodyDivs = Array.from(row.getElementsByClassName("card-body"));
+                errorMsg = `The amount of card-body divs, with the right Bootstrap class, inside reviews-card divs should be ${totalAmount}, instead it's: ${cardBodyDivs.length} `;
+                if (cardBodyDivs.length !== totalAmount) return wrong(errorMsg);
+
+                // check if all card-bodies are div tags
+                errorMsg = "Some of the reviews-card-bodies aren't div tags."
+                for (let i = 0; i < cardBodyDivs.length; i++) {
+                    const div = cardBodyDivs[i].nodeName;
+                    const divNodeName = "DIV";
+                    if (div !== divNodeName) return wrong(errorMsg);
+                }
+
+                // check if card-body inside card
+                errorMsg = "Some of the reviews-card-bodies aren't inside of the card divs.";
+                for (let i = 0; i < cardBodyDivs.length; i++) {
+                    const parent = cardBodyDivs[i].parentElement.className;
+                    const parentClass = "card";
+                    if (!parent.includes(parentClass)) return wrong(errorMsg);
+                }
+
+                // CARD-TITLES H4
+                // check if there are 3 card-titles with the right class
+                const cardTitles = Array.from(row.getElementsByClassName("card-title"));
+                errorMsg = `The amount of card-title h4 tags, with the right Bootstrap class, inside reviews-card-body divs should be ${totalAmount}, instead it's: ${cardTitles.length} `;
+                if (cardTitles.length !== totalAmount) return wrong(errorMsg);
+
+                // check if all card-titles are h4 tags
+                errorMsg = "Some of the reviews-card-titles aren't h4 tags."
+                for (let i = 0; i < cardTitles.length; i++) {
+                    const h4 = cardTitles[i].nodeName;
+                    const h4NodeName = "H4";
+                    if (h4 !== h4NodeName) return wrong(errorMsg);
+                }
+
+                // check if card-title inside card-body
+                errorMsg = "Some of the reviews-card-titles aren't inside of the card-body divs.";
+                for (let i = 0; i < cardTitles.length; i++) {
+                    const parent = cardTitles[i].parentElement.className;
+                    const parentClass = "card-body";
+                    if (parent !== parentClass) return wrong(errorMsg);
+                }
+
+                // check if card-titles have inner text.
+                errorMsg = "Some of the reviews-card-titles are missing an inner text.";
+                for (let i = 0; i < cardTitles.length; i++) {
+                    const innerText = cardTitles[i].innerHTML;
+                    if (innerText.trim().length <= 1) return wrong(errorMsg);
+                }
+
+                // BLOCKQUOTE
+                // check if there are 3 blockquotes
+                const blockquotes = Array.from(row.querySelectorAll("blockquote"));
+                errorMsg = `The amount of blockquote tags, with the right Bootstrap class, inside reviews-card-body divs should be ${totalAmount}, instead it's: ${blockquotes.length} `;
+                if (blockquotes.length !== totalAmount) return wrong(errorMsg);
+
+                // check if blockquotes inside card-body
+                errorMsg = "Some of the reviews-blockquotes aren't inside of the card-body divs.";
+                for (let i = 0; i < blockquotes.length; i++) {
+                    const parent = blockquotes[i].parentElement.className;
+                    const parentClass = "card-body";
+                    if (parent !== parentClass) return wrong(errorMsg);
+                }
+
+                // check if blockquotes have the right classes
+                const blockquotesClasses = "blockquote mb-0".split(" ");
+                const temp2 = [];
+                blockquotes.forEach(div => {
+                    temp2.push(blockquotesClasses.find(blockquoteClass => !div.className.includes(blockquoteClass)));
+                });
+                const missingBlockquoteClasses = [];
+                temp2.forEach(e => e && missingBlockquoteClasses.push(e));
+                errorMsg = `Some of the blockquotes inside reviews card-body div are missing these Bootstrap classes: '${missingBlockquoteClasses}' .`;
+                if (missingBlockquoteClasses.length > 0) return wrong(errorMsg);
+
+                // BLOCKQUOTE P
+                // check if there are 3 texts with the right class
+                const blockquoteTexts = Array.from(row.querySelectorAll("p"));
+                errorMsg = `The amount of p tags inside blockquotes should be ${totalAmount}, instead it's: ${blockquoteTexts .length} `;
+                if (blockquoteTexts.length !== totalAmount) return wrong(errorMsg);
+
+                // check if texts are inside blockquotes
+                errorMsg = "Some of the blockquote-texts aren't inside of the blockquotes.";
+                for (let i = 0; i < blockquoteTexts.length; i++) {
+                    const parent = blockquoteTexts[i].parentElement.className;
+                    const parentClass = "blockquote";
+                    if (!parent.includes(parentClass)) return wrong(errorMsg);
+                }
+
+                // check if blockquote-texts have inner text.
+                errorMsg = "Some of the blockquote-texts are missing an inner text.";
+                for (let i = 0; i < blockquoteTexts.length; i++) {
+                    const innerText = blockquoteTexts[i].innerText;
+                    if (innerText.trim().length <= 1) return wrong(errorMsg);
+                }
+
+                // BLOCKQUOTE FOOTER
+                // check if there are 3 blockquote-footers exist
+                const blockquoteFooters = Array.from(row.querySelectorAll("footer"));
+                errorMsg = `The amount of footer tags inside blockquotes should be ${totalAmount}, instead it's: ${blockquoteFooters.length} `;
+                if (blockquoteFooters.length !== totalAmount) return wrong(errorMsg);
+
+                // check if blockquote-footers have the right classes
+                const blockquoteFooterClasses = "text-end blockquote-footer".split(" ");
+                const temp3 = [];
+                blockquoteFooters.forEach(div => {
+                    temp3.push(blockquoteFooterClasses.find(footerClass => !div.className.includes(footerClass)));
+                });
+                const missingBlockquoteFooterClasses = [];
+                temp3.forEach(e => e && missingBlockquoteFooterClasses.push(e));
+                errorMsg = `Some of the footers inside reviews blockquotes are missing these Bootstrap classes: '${missingBlockquoteFooterClasses}' .`;
+                if (missingBlockquoteFooterClasses.length > 0) return wrong(errorMsg);
+
+                // check if blockquote-footers have inner text.
+                errorMsg = "Some of the blockquote-footers are missing an inner text.";
+                for (let i = 0; i < blockquoteFooters.length; i++) {
+                    const innerText = blockquoteFooters[i].innerText;
+                    if (innerText.trim().length <= 1) return wrong(errorMsg);
+                }
+
+                // check if footers are inside blockquotes
+                errorMsg = "Some of the blockquote-footers aren't inside of the blockquotes.";
+                for (let i = 0; i < blockquoteFooters.length; i++) {
+                    const parent = blockquoteFooters[i].parentElement.className;
+                    const parentClass = "blockquote";
+                    if (!parent.includes(parentClass)) return wrong(errorMsg);
+                }
+
+                // check if blockquote-footers' inner text is italic.
+                errorMsg = "Some of the blockquote-footers' inner text aren't italic.";
+                for (let i = 0; i < blockquoteFooters.length; i++) {
+                    const innerTag = blockquoteFooters[i].firstElementChild;
+                    if (!innerTag) return wrong(errorMsg);
+
+                    const italicNode = innerTag.nodeName;
+                    const italic = "I";
+                    if (italicNode !== italic) return wrong(errorMsg);
+                }
+
+                return correct();
+            }),
+            this.page.execute(() => {
+                // test 11
+                // DYNAMIC REVIEWS
+                // check if after entering inputs and submitting the values, renders a new content
+                const reviewTitle = document.getElementById("reviewTitle");
+                const reviewText = document.getElementById("reviewText");
+                const reviewName = document.getElementById("reviewName");
+                const submit = document.getElementById("reviewButton");
+                const reviews = document.getElementById("reviewsRow");
+
+                reviewTitle.value = "Yeah, you did it!";
+                reviewText.value = "Good job!";
+                reviewName.value = "bertcha";
+                submit.click();
+                const newReviewHTML = reviews.lastElementChild;
+
+                // NEW COL DIV
+                // check if new review is inside col
+                const newReviewCol = newReviewHTML.parentElement.querySelector("div");
+                let errorMsg = `The new dynamic review should be wrapped with a div tag.`;
+                if (!newReviewCol) return wrong(newReviewHTML.outerHTML);
+
+                // check if col wrapper div has the right classes
+                const newReviewColClasses = "col-lg-4 col-md-6 py-3".split(" ");
+                const missingNewReviewColClasses = newReviewColClasses.filter(e => !newReviewCol.className.includes(e));
+                errorMsg = `The wrapper div for the new review in the reviews row div is missing these Bootstrap classes: '${missingNewReviewColClasses}'`;
+                if (missingNewReviewColClasses.length > 0) return wrong(errorMsg);
+
+                // NEW CARD DIV
+                // check if new review is a card
+                const newReviewCard = newReviewHTML.querySelector("div");
+                errorMsg = `The new dynamic review should have a wrapper div inside col div.`;
+                if (!newReviewCard) return wrong(errorMsg);
+
+                // check if card  div has the right classes
+                const newCardClasses = "card h-100".split(" ");
+                const missingNewCardClasses = newCardClasses.filter(e => !newReviewCard.className.includes(e));
+                errorMsg = `The new dynamic review  wrapper div inside col div should have these Bootstrap classes: ${missingNewCardClasses} `;
+                if (missingNewCardClasses.length > 0) return wrong(errorMsg);
+
+                // NEW CARD BODY DIV
+                // check if there is card body div
+                const newReviewCardBody = newReviewCard.querySelector("div");
+                errorMsg = `The new dynamic review should have a wrapper div inside card div.`;
+                if (!newReviewCardBody) return wrong(errorMsg);
+
+                // check if there is card body div with right class
+                const newCardBodyClass = "card-body";
+                errorMsg = `The new dynamic review  wrapper div inside card div should have this Bootstrap class: ${newCardBodyClass} `;
+                if (!newReviewCardBody.className.includes(newCardBodyClass)) return wrong(errorMsg);
+
+                // NEW CARD-TITLE H4
+                // check if there is card-title
+                const newReviewCardTitle = newReviewCardBody.querySelector("h4");
+                errorMsg = `The new dynamic review should have a h4 tag inside card-body div in reviews div.`;
+                if (!newReviewCardTitle) return wrong(errorMsg);
+
+                // check if card title with the right class
+                const newCardTitleClass = "card-title";
+                errorMsg = `The new dynamic review h4 tag inside card-body div  should have this Bootstrap class: ${newCardTitleClass} `;
+                if (!newReviewCardTitle.className.includes(newCardTitleClass)) return wrong(errorMsg);
+
+                // check if card-title has correct inner text.
+                const newReviewCardTitleText = newReviewCardTitle.innerText;
+                errorMsg = "The inner text for the h4 card title of the new dynamic review is incorrect.";
+                if (newReviewCardTitleText.trim() !== reviewTitle.value) return wrong(errorMsg);
+
+                // NEW BLOCKQUOTE
+                // check if there is blockquote
+                const newReviewBlockquote = newReviewCardBody.querySelector("blockquote");
+                errorMsg = `The new dynamic review should have a blockquote tag inside card-body div.`;
+                if (!newReviewBlockquote) return wrong(errorMsg);
+
+                // check if blockquote has the right classes
+                const newBlockquoteClasses = "blockquote mb-0".split(" ");
+                const missingNewBlockquoteClasses = newBlockquoteClasses.filter(e => !newReviewBlockquote.className.includes(e));
+                errorMsg = `The new dynamic review blockquote div inside card-body div should have these Bootstrap classes: ${missingNewBlockquoteClasses} `;
+                if (missingNewBlockquoteClasses.length > 0) return wrong(errorMsg);
+
+                // BLOCKQUOTE P
+                // check if there is text
+                const newReviewBlockquoteText = newReviewBlockquote.querySelector("p");
+                errorMsg = `The new dynamic review should have a p tag inside blockquote tag in reviews div.`;
+                if (!newReviewBlockquoteText) return wrong(errorMsg);
+
+                // check if card-title has correct inner text.
+                const newReviewBlockquoteTextInnerText = newReviewBlockquoteText.innerText;
+                errorMsg = "The inner text for the p tag inside blockquote tag of the new dynamic review is incorrect.";
+                if (newReviewBlockquoteTextInnerText.trim() !== reviewText.value) return wrong(errorMsg);
+
+                // BLOCKQUOTE FOOTER
+                // check if there is footer
+                const newReviewBlockquoteFooter = newReviewBlockquote.querySelector("footer");
+                errorMsg = `The new dynamic review should have a footer tag inside blockquote tag in reviews div.`;
+                if (!newReviewBlockquoteFooter) return wrong(errorMsg);
+
+                // check if card  div has the right classes
+                const newBlockquoteFooterClasses = "text-end blockquote-footer".split(" ");
+                const missingNewBlockquoteFooterClasses = newBlockquoteFooterClasses.filter(e => !newReviewBlockquoteFooter.className.includes(e));
+                errorMsg = `The new dynamic review  footer tag inside blockquote tag should have these Bootstrap classes: ${missingNewBlockquoteFooterClasses} `;
+                if (missingNewBlockquoteFooterClasses.length > 0) return wrong(errorMsg);
+
+                // check if card-title has correct inner text.
+                const newReviewBlockquoteFooterInnerText = newReviewBlockquoteFooter.innerText;
+                errorMsg = "The inner text for the footer tag inside blockquote tag of the new dynamic review is incorrect.";
+                if (newReviewBlockquoteFooterInnerText.trim() !== reviewName.value) return wrong(errorMsg);
+
+                // check if blockquote-footer's inner text is italic.
+                const innerTag = newReviewBlockquoteFooter.firstElementChild;
+                const italic = "I";
+                errorMsg = "The inner text for the footer tag inside blockquote tag of the new dynamic review is not italic.";
+                if (!innerTag || innerTag.nodeName !== italic) return wrong(errorMsg);
+
+                return correct();
+            }),
+            this.page.execute(() => {
+                // test 12
+                // DYNAMIC REVIEW
+                // check if the name of the reviewer is anonymous when input is value is empty
+                const reviewTitle = document.getElementById("reviewTitle");
+                const reviewText = document.getElementById("reviewText");
+                const reviewName = document.getElementById("reviewName");
+                const submit = document.getElementById("reviewButton");
+                const reviews = document.getElementById("reviewsRow");
+
+                reviewTitle.value = "Yeah, you did it!";
+                reviewText.value = "Good job!";
+                reviewName.value = "";
+                submit.click();
+
+                const newReviewFooter = reviews.lastElementChild.querySelector("footer").innerText;
+                const anon = "Anonymous";
+                let errorMsg = `When the user doesn't enter any value for the name input, the blockquote-footer's inner text should be: ${anon}.`;
+                if (!newReviewFooter.includes(anon)) return wrong(errorMsg);
+
+                return correct();
+            }),
+            this.page.execute(() => {
+                // test 13
+                // check if the review title input have required attr
+                let errorMsg = `Input tag with the id of 'reviewTitle' is missing a 'required' attribute. `;
+                const titleReq = document.getElementById("reviewTitle").attributes.getNamedItem("required");
+                if (!titleReq) return wrong(errorMsg);
+
+                // check if the review text input have required attr
+                errorMsg = `Input tag with the id of 'reviewText' is missing a 'required' attribute. `;
+                const textReq = document.getElementById("reviewText").attributes.getNamedItem("required");
+                if (!textReq) return wrong(errorMsg);
+
+                return correct();
+
+            }),
+            this.page.execute(() => {
+                // test 14
+                // CONTACT DIV
+                // check if contact div exist
+                const contact = document.getElementById("contact");
+                let errorMsg = "Contact div with the correct id doesn't exist inside the body.";
+                if (!contact) return wrong(errorMsg);
+
+                // check if contact div has the right classes
+                const contactClasses = "container-fluid bg-light p-0".split(" ");
+                const missingContactClasses = contactClasses.filter(e => !contact.className.includes(e));
+                errorMsg = `Contact div is missing these Bootstrap classes: '${missingContactClasses}'`;
+                if (missingContactClasses.length > 0) return wrong(errorMsg);
+
+                // TEXT CONTAINER DIV
+                // check if text container div exist
+                const textContainer = contact.querySelector("div");
+                errorMsg = "Contact div is missing a container div for all the text items.";
+                if (!textContainer) return wrong(errorMsg);
+
+                // check if text container div has the right classes
+                const textContainerClasses = "container-fluid d-md-flex justify-content-between p-5".split(" ");
+                const missingTextContainerClasses = textContainerClasses.filter(e => !textContainer.className.includes(e));
+                errorMsg = `Text container div inside contact div is missing these Bootstrap classes: '${missingTextContainerClasses}'`;
+                if (missingTextContainerClasses.length > 0) return wrong(errorMsg);
+
+                // H2
+                // check if h2 exist inside contact div
+                const h2 = textContainer.querySelector("h2");
+                errorMsg = `Text container div inside contact div is missing the h2 tag.`;
+                if (!h2) return wrong(errorMsg);
+
+                // check if h2 has the right classes
+                const h2Classes = "display-5 w-100 mb-3 fw-bold".split(" ");
+                const missingH2Classes = h2Classes.filter(e => !h2.className.includes(e));
+                errorMsg = `The h2 tag in the contact div is missing these Bootstrap classes: '${missingH2Classes}'`;
+                if (missingH2Classes.length > 0) return wrong(errorMsg);
+
+                // check if h2 has the right text content
+                const h2Content = "Contact Us";
+                errorMsg = `The h2 tag in the contact div is missing the right inner text: ${h2Content}`;
+                if (!h2.innerText.includes(h2Content)) return wrong(errorMsg);
+
+                // INFO TEXT CONTAINER DIV
+                // check if info container exist
+                const infoContainer = textContainer.querySelector("div");
+                errorMsg = "Text container div inside contact div is missing the container div for the information texts."
+                if (!infoContainer) return wrong(errorMsg);
+
+                // check if info container has the right class
+                const infoContainerClasses = "container ps-0".split(" ");
+                const missingInfoContainerClasses = infoContainerClasses.filter(e => !infoContainer.className.includes(e));
+                errorMsg = `The info container div after h2 tag in the contact div is missing these Bootstrap classes: '${missingInfoContainerClasses}'`;
+                if (missingInfoContainerClasses.length > 0) return wrong(errorMsg);
+
+                // P TAGS
+                // check if there are 3 p tags inside info container
+                const pTags = Array.from(infoContainer.querySelectorAll("p"));
+                const pTotal = 3;
+                errorMsg = `There should be ${pTotal} p tags inside contact-info container div, instead there are ${pTags.length}.`
+                if (pTags.length !== pTotal) return wrong(errorMsg);
+
+                // check if p tags has the right class
+                const fs5 = "fs-5"
+                errorMsg = `Some of the p tags inside contact-info container div are missing the right Bootstrap class: '${fs5}'.`
+                for (let i = 0; i < pTags.length; i++) {
+                    const pClass = pTags[i].className;
+                    if (!pClass.includes(fs5)) return wrong(errorMsg);
+                }
+
+                // check if p tags has the an inner-text
+                errorMsg = `Some of the p tags inside contact-info container div are missing an inner text.`
+                for (let i = 0; i < pTags.length; i++) {
+                    const pClass = pTags[i].innerText;
+                    if (pClass.trim().length <= 1) return wrong(errorMsg);
+                }
+
+                // ADRESS B TAG
+                // check if b tag exist inside address p tag with right text
+                const addressB = pTags[0].querySelector("b");
+                const addressText = "Address:";
+                errorMsg = `Address text in the contact-info container is missing the bold tag wrapping the word '${addressText}'.`;
+                if (!addressB || addressB.innerText !== addressText) return wrong(errorMsg);
+
+                // PHONE B TAG
+                // check if b tag exist inside phone p tag with right text
+                const phoneB = pTags[1].querySelector("b");
+                const phoneText = "Phone Number:";
+                errorMsg = `Phone text in the contact-info container is missing the bold tag wrapping the word '${phoneText}'.`;
+                if (!phoneB || phoneB.innerText !== phoneText) return wrong(errorMsg);
+
+                // EMAIL B TAG
+                // check if b tag exist inside email p tag with right text
+                const emailB = pTags[2].querySelector("b");
+                const emailText = "Email:";
+                errorMsg = `Email text in the contact-info container is missing the bold tag wrapping the word '${emailText}'.`;
+                if (!emailB || emailB.innerText !== emailText) return wrong(errorMsg);
+
+                // PHONE A TAG
+                // check if b tag exist inside phone p tag with text
+                const phoneA = pTags[1].querySelector("a");
+                errorMsg = `Phone text in the contact-info container is missing the anchor tag wrapping the phone number.`;
+                if (!phoneA || phoneA.innerText.trim().length <= 1) return wrong(errorMsg);
+
+                // check if a tag has href attrs
+                const phoneHref = pTags[1].querySelector("a").getAttribute("href");
+                errorMsg = `Phone anchor tag in the contact-info container is missing the href attribute with the value of 'tel:'.`;
+                if (!phoneHref || !phoneHref.includes("tel:")) return wrong(errorMsg);
+
+                // EMAIL A TAG
+                // check if b tag exist inside email p tag with text
+                const emailA = pTags[2].querySelector("a");
+                errorMsg = `Email text in the contact-info container is missing the anchor tag wrapping the email address.`;
+                if (!emailA || emailA.innerText.trim().length <= 1) return wrong(errorMsg);
+
+                // check if a tag has href attrs
+                const emailHref = pTags[2].querySelector("a").getAttribute("href");
+                errorMsg = `Email anchor tag in the contact-info container is missing the href attribute with the value of 'mailto:'.`;
+                if (!emailHref || !emailHref.includes("mailto")) return wrong(errorMsg);
+
+                // VISUALS CONTAINER DIV
+                // check if container for visual items exist
+                const visualsContainer = contact.lastElementChild;
+                const nodeName = visualsContainer.nodeName;
+                const div = "DIV";
+                errorMsg = "Container div for the iframe and img tags is missing inside contact div.";
+                if (!visualsContainer || nodeName !== div) return wrong(errorMsg);
+
+                // check if container has the right classes
+                const visualsContainerClasses = "container-fluid d-md-flex p-0".split(" ");
+                const missingVisualsContainerClasses = visualsContainerClasses.filter(e => !visualsContainer.className.includes(e));
+                errorMsg = `Container div for the iframe and img tags inside contact div is missing these Bootstrap classes: '${missingVisualsContainerClasses}'`;
+                if (missingVisualsContainerClasses.length > 0) return wrong(errorMsg);
+
+                // RATIO WRAPPER DIV
+                // check if wrapper div for iframe exist
+                const ratioDiv = visualsContainer.querySelector("div");
+                errorMsg = "Wrapper div for the iframe tag is missing inside visuals container div in contact div.";
+                if (!ratioDiv) return wrong(errorMsg);
+
+                // check if wrapper div has the right classes
+                const ratioDivClasses = "ratio ratio-16x9".split(" ");
+                const missingRatioDivClasses = ratioDivClasses.filter(e => !ratioDiv.className.includes(e));
+                errorMsg = `Wrapper div for the iframe tag inside visuals container div in contact div is missing these Bootstrap classes: '${missingRatioDivClasses}'`;
+                if (missingRatioDivClasses.length > 0) return wrong(errorMsg);
+
+                // IFRAME
+                // check if iframe exist
+                const iframe = ratioDiv.querySelector("iframe");
+                errorMsg = "The iframe tag for the location is missing inside contact div.";
+                if (!iframe) return wrong(errorMsg);
+
+                // check if iframe src attrs exist
+                const src = "https://www.google.com/maps/embed";
+                const iframeSrc = iframe.getAttribute("src");
+                errorMsg = `Iframe tag inside contact div is missing the src attribute, it should start like this: '${src}'`;
+                if (!iframeSrc || !iframeSrc.includes(src)) return wrong(errorMsg);
+
+                // check if iframe loading attrs exist
+                const loading = "lazy";
+                const iframeLoading = iframe.getAttribute("loading");
+                errorMsg = `Iframe tag inside contact div is missing the loading attribute: '${loading}'`;
+                if (!iframeLoading || !iframeLoading.includes(loading)) return wrong(errorMsg);
+
+                // WRAPPER IMG
+                // check if wrapper img exist
+                const imgWrapper = visualsContainer.lastElementChild;
+                const wrapperNodeName = imgWrapper.nodeName;
+                errorMsg = "Wrapper div for the img tag is missing inside visuals wrapper div in contact div.";
+                if (!imgWrapper || wrapperNodeName !== div) return wrong(errorMsg);
+
+                // check if wrapper has the right classes
+                const imgWrapperClasses = "container-fluid p-0".split(" ");
+                const missingImgWrapperClasses = imgWrapperClasses.filter(e => !imgWrapper.className.includes(e));
+                errorMsg = `Wrapper div for the img tag inside visuals wrapper div in  contact div is missing these Bootstrap classes: '${missingImgWrapperClasses}'`;
+                if (missingImgWrapperClasses.length > 0) return wrong(errorMsg);
+
+                // IMG
+                // check if img exist inside contact
+                const img = imgWrapper.querySelector("img");
+                errorMsg = `The image tag inside contact div is missing.`;
+                if (!img) return wrong(errorMsg);
+
+                // check if img has the right class
+                const imgClasses = "img-fluid";
+                const missingImgClass = !img.className.includes(imgClasses);
+                errorMsg = `The img tag inside contact div is missing this Bootstrap class: '${imgClasses}' .`;
+                if (missingImgClass) return wrong(errorMsg);
+
+                // check if img has the src attribute
+                const imgSrc = img.getAttribute("src");
+                errorMsg = `The img tag inside contact div is missing the src attribute.`;
+                if (!imgSrc || imgSrc.trim().length <= 1) return wrong(errorMsg);
+
+                // check if img has the alt attribute
+                const alt = img.getAttribute("alt");
+                errorMsg = `The img tag inside contact div is missing the alt attribute.`;
+                if (!alt || alt.trim().length <= 1) return wrong(errorMsg);
+
+                return correct()
+            }),
+            this.page.execute(() => {
+                // test 15
+                // FOOTER
+                // check if footer exist in body
+                const footer = document.getElementById("footer");
+                const footerId = "footer";
+                const footerNodeName = "FOOTER";
+                let errorMsg = `The footer tag with the id of '${footerId}' is missing inside the body of the HTML document.`;
+                if (!footer || footer.nodeName !== footerNodeName) return wrong(errorMsg);
+
+                // check if footer has the right classes
+                const footerClasses = "footer bg-dark".split(" ");
+                const missingFooterClasses = footerClasses.filter(e => !footer.className.includes(e));
+                errorMsg = `The footer on the bottom of the page is missing these Bootstrap classes: '${missingFooterClasses}'`;
+                if (missingFooterClasses.length > 0) return wrong(errorMsg);
+
+                // NAV CONTAINER DIV
+                // check if container exist
+                const navContainer = footer.querySelector("div");
+                errorMsg = "The container div for nav list is missing inside the footer."
+                if (!navContainer) return wrong(errorMsg);
+
+                // check if container has the right classes
+                const navContainerClasses = "container-fluid pt-5 pb-3".split(" ");
+                const missingNavContainerClasses = navContainerClasses.filter(e => !navContainer.className.includes(e));
+                errorMsg = `The container div for nav list inside the footer is missing these Bootstrap classes: '${missingNavContainerClasses}'`;
+                if (missingNavContainerClasses.length > 0) return wrong(errorMsg);
+
+                // UL
+                // check if ul exist
+                const ul = navContainer.querySelector("ul");
+                errorMsg = "The ul tag in nav container div for the nav list is missing inside the footer.";
+                if (!ul) return wrong(errorMsg);
+
+                // check if ul has the right class
+                const ulClass = "nav";
+                errorMsg = `The ul tag in container div inside the footer is missing this Bootstrap class: '${ulClass}'`;
+                if (!ul.className.includes(ulClass)) return wrong(errorMsg);
+
+                // LIS
+                // check if 5 li exist
+                const liArr = Array.from(ul.querySelectorAll("li"));
+                errorMsg = `There should be 5 li tags for each nav links inside the footer nav list, found: ${liArr.length}`;
+                const liTotal = 5;
+                if (liArr.length !== liTotal) return wrong(errorMsg);
+
+                // check if all li has the right class
+                const liClass = "nav-item";
+                const liArrClass = liArr.filter(e => !e.className.includes(liClass))
+                errorMsg = `All li tags  for each nav links inside the footer nav list should have the right Bootstrap class: '${liClass}'`;
+                if (liArrClass.length > 0) return wrong(errorMsg);
+
+                // ALL ANCHORS IN LI
+                // check if there are 5  anchors
+                const links = liArr.filter(e => e.querySelector("a"));
+                errorMsg = `There should be a tags inside each li tags in the footer nav, found: ${links.length}.`;
+                if (links.length !== liTotal) return wrong(errorMsg);
+
+                // check if the  anchors have the right classes
+                const aClasses = "nav-link link-secondary".split(" ");
+                const temp = [];
+                links.forEach(link => {
+                    temp.push(aClasses.find(e => !link.firstElementChild.className.includes(e)));
+                });
+                const missingLinkClasses = [];
+                temp.forEach(e => e && missingLinkClasses.push(e));
+                errorMsg = `Some of the anchor tags inside footer nav list are missing these Bootstrap classes: '${missingLinkClasses}' .`;
+                if (missingLinkClasses.length > 0) return wrong(errorMsg);
+
+                // HOME ANCHOR
+                // check if the home anchor has the right href attr
+                const aHome =  liArr[0].querySelector("a")
+                const homeHref = "#home";
+                const aHomeHref = aHome.getAttribute("href");
+                errorMsg = `Inside footer nav list the first anchor tag for home is missing the right href attribute: ${homeHref}.`;
+                if (!aHomeHref || !aHomeHref.includes(homeHref)) return wrong(errorMsg);
+
+                // check if the home anchor has the right inner text
+                const homeText = "Home";
+                const aHomeText = aHome.innerText;
+                errorMsg = `Inside footer nav list the first anchor tag for home is missing the right inner text: ${homeText}.`;
+                if (!aHomeText.includes(homeText)) return wrong(errorMsg);
+
+                // ABOUT ANCHOR
+                // check if about anchor has the right href
+                const aAbout = liArr[1].querySelector("a")
+                const aAboutHref = aAbout.getAttribute("href");
+                const aboutHref = "#about";
+                errorMsg = `Inside footer nav list the anchor tag for about should have the right href attribute: ${aboutHref}.`;
+                if (!aAboutHref || !aAboutHref.includes(aboutHref)) return wrong(errorMsg);
+
+                // check if about anchor has the right inner text
+                const aboutText = "About";
+                const aAboutText = aAbout.innerText;
+                errorMsg = `Inside footer nav list the anchor tag for about should have the right inner text: ${aboutText}.`;
+                if (!aAboutText.includes(aboutText)) return wrong(errorMsg);
+
+                // PRODUCTS ANCHOR
+                // check if products anchor the right href
+                const aProducts = liArr[2].querySelector("a");
+                const aProductsHref = aProducts.getAttribute("href");
+                const productsHref = "#products";
+                errorMsg = `Inside footer nav list the anchor tag for products should have the right href attribute: ${productsHref}.`;
+                if (!aProductsHref || !aProductsHref.includes(productsHref)) return wrong(errorMsg);
+
+                // check if products anchor has the right inner text
+                const productsText = "Products";
+                const aProductsText = aProducts.innerText;
+                errorMsg = `Inside footer nav list the anchor tag for products should have the right inner text: ${productsText}.`;
+                if (!aProductsText.includes(productsText)) return wrong(errorMsg);
+
+                // REVIEWS ANCHOR
+                // check if reviews anchor the right href
+                const aReviews = liArr[3].querySelector("a");
+                const aReviewsHref = aReviews.getAttribute("href");
+                const reviewsHref = "#reviews";
+                errorMsg = `Inside footer nav list the anchor tag for reviews should have the right href attribute: ${reviewsHref}.`;
+                if (!aReviewsHref || !aReviewsHref.includes(reviewsHref)) return wrong(errorMsg);
+
+                // check if reviews anchor has the right inner text
+                const reviewsText = "Reviews";
+                const aReviewsText = aReviews.innerText;
+                errorMsg = `Inside footer nav list the anchor tag for reviews should have the right inner text: ${reviewsText}.`;
+                if (!aReviewsText.includes(reviewsText)) return wrong(errorMsg);
+
+                // CONTACT ANCHOR
+                // check if contact anchor the right href
+                const aContact = liArr[4].querySelector("a");
+                const aContactHref = aContact.getAttribute("href");
+                const contactHref = "#contact";
+                errorMsg = `Inside footer nav list the anchor tag for contact should have the right href attribute: ${contactHref}.`;
+                if (!aContactHref || !aContactHref.includes(contactHref)) return wrong(errorMsg);
+
+                // check if contact anchor has the right inner text
+                const contactText = "Contact";
+                const aContactText = aContact.innerText;
+                errorMsg = `Inside footer nav list the anchor tag for contact should have the right inner text: ${contactText}.`;
+                if (!aContactText.includes(contactText)) return wrong(errorMsg);
+
+                // check if the contact anchor has the aria-current attr
+                const ariaCurr = "page";
+                const aContactAria = aContact.getAttribute("aria-current");
+                errorMsg = `Inside footer nav list the anchor tag for contact is missing the right aria-current attribute: ${ariaCurr}.`;
+                if (!aContactAria || !aContactAria.includes(ariaCurr)) return wrong(errorMsg);
+
+                // SPAN CONTAINER
+                // check if container exist
+                const spanContainer = Array.from(footer.querySelectorAll("div"))[1];
+                errorMsg = "The container div for the copyright text span is missing in the footer.";
+                if (!spanContainer) return wrong(errorMsg);
+
+                // check if container has the right classes
+                const spanContainerClasses = "container-fluid pb-5 px-4".split(" ");
+                const missingSpanContainerClasses = spanContainerClasses.filter(e => !spanContainer.className.includes(e));
+                errorMsg = `The container div for the copyright text span inside the footer is missing these Bootstrap classes: '${missingSpanContainerClasses}'`;
+                if (missingSpanContainerClasses.length > 0) return wrong(errorMsg);
+
+                // SPAN
+                // check if span exist
+                const span = spanContainer.querySelector("span");
+                errorMsg = "The span tag for the copyright text inside a container is missing in the footer.";
+                if (!span) return wrong(errorMsg);
+
+                // check if span has the right class
+                const spanClasses = "text-muted px-1".split(" ");
+                const missingSpanClasses = spanClasses.filter(e => !span.className.includes(e));
+                errorMsg = `The span tag for the copyright text inside a container inside the footer is missing these Bootstrap classes: '${spanClasses}'`;
+                if (missingSpanClasses.length > 0) return wrong(errorMsg);
+
+                // check if span has the right inner text
+                const innerText = "2021 Hyperskill Cafe";
+                errorMsg = `The span tag for the copyright text inside a container inside the footer is missing the right inner text: ${innerText}`;
+                if (!span.innerText.trim().includes(innerText)) return wrong(errorMsg);
+
+                return correct();
+            }),
+        ]
+    }
+
+    it('Test stage', async function () {
+        try {
+            this.timeout(30000)
+        } catch (ignored) {
+        }
+        await new CafeTest().runTests()
+    }, 30000)
+  learner_created: false
+- name: src/caf.jpg
+  visible: true
+  text: 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
+  learner_created: true
+- name: src/style.css
+  visible: true
+  text: |-
+    body{
+        font-family: "Open Sans"; !important
+    }
+    card{
+        border-bottom: 50px;
+    }
+  learner_created: true
+- name: src/script.js
+  visible: true
+  text: |-
+    "use strict";
+
+    const reviewButton = document.getElementById('reviewButton');
+    const reviewsRow = document.getElementById('reviewsRow');
+    const reviewTitle = document.getElementById('reviewTitle');
+    const reviewText = document.getElementById('reviewText');
+    const reviewName = document.getElementById('reviewName');
+
+    reviewButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        if (reviewTitle.value !== "" && reviewText.value !== "") {
+            let reviewTemplate = '';
+
+            if (reviewName.value === "") {
+                reviewName.value = "Anonymous";
+            }
+            reviewTemplate = `<div class="col-lg-4 col-md-6 py-3">
+                              <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title">${reviewTitle.value}</h4>
+                                    <blockquote class="blockquote mb-0">
+                                        <p>${reviewText.value}</p>
+                                        <footer class="text-end blockquote-footer"><i>${reviewName.value}</i></footer>
+                                    </blockquote>
+                                </div>
+                              </div>
+                            </div>
+                          `;
+            reviewsRow.innerHTML += reviewTemplate;
+        }
+    });
+  learner_created: true
+feedback_link: https://hyperskill.org/learn/step/15934#comment
+status: Solved
+feedback:
+  message: Well done! You've finished the project. Select a new project on <a href="https://hyperskill.org/projects">JetBrains
+    Academy</a> to continue learning.
+  time: Thu, 11 Aug 2022 11:30:07 UTC
+record: -1
